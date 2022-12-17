@@ -20,7 +20,7 @@
 
 ### Setup
 - Install MongoDB Compass
-- IDE: VS Code, SublineText,...
+- IDE: VS Code, Sublime Text 3,...
 
 ### Install
 
