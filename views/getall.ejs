@@ -1,0 +1,81 @@
+<% extend("../mainadmin.ejs") %>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Tất cả các website</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+              <table id="example2" class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Actions</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if(pages.length!=0){ var i=1; pages.forEach(function(data){ %>
+                    <tr>
+                      <td>
+                        <%=data.id%>
+                      </td>
+                      <td>
+                        <%=data.name %>
+                      </td>
+                      <td>
+                        <%=data.email %>
+                      </td>
+                      <td>
+                        <%=data.password %>
+                      </td>
+
+                      <td>
+                        <a href="/admin/users/edit?id=<%=data.id%>" class="edit" title="Edit" data-toggle="tooltip"><i
+                            class="material-icons"></i>edit</a>
+                        <a href="/admin/users/view?id=<%=data.id%>" class="view" title="View" data-toggle="tooltip"><i
+                            class="material-icons"></i>view</a>
+                        <a href="/admin/users/delete?id=<%=data.id%>" class="delete" title="Delete"
+                          data-toggle="tooltip"><i class="material-icons"></i>delete</a>
+                      </td>
+
+                    </tr>
+                    <% i++; }) %>
+                      <% } else{ %>
+                        <tr>
+                          <td colspan="8">No Data Found</td>
+                        </tr>
+                        <% } %>
+                </tbody>
+
+                <!-- <tr>
+                    <td>Trident</td>
+                    <td>Internet
+                      Explorer 4.0
+                    </td>
+                    <td>Win 95+</td>
+                    <td> 4</td>
+                    <td>X</td>
+                  </tr> -->
+
+                </tbody>
+
+              </table>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+  </section>

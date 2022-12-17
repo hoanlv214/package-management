@@ -1,0 +1,152 @@
+<link rel="stylesheet" href="/public/bootstrap.css" />
+<link rel="stylesheet" href="/public/font-awesome-4.7.0/css/font-awesome.css" />
+<link rel="stylesheet" href="/public/jquery.dataTables.min.css" />
+
+<div class="container" style="margin-top: 150px;">
+    <div class="row">
+        <div class="col-md-8">
+            <form method="POST" onsubmit="return crawlPage(this);">
+                <div class="form-group">
+                    <label>Enter URL</label>
+                    <input type="url" name="url" class="form-control" required />
+                </div>
+
+                <input type="submit" name="submit" value="Crawl" class="btn btn-info" />
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table table-bordered" id="my-table">
+                <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>Title</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+
+                <tbody id="data">
+                    <% for (var index in pages) { %>
+                        <tr>
+                            <td>
+                                <a href="/page/<%= encodeURIComponent(pages[index].url) %>">
+                                    <%= pages[index].url %>
+                                </a>
+                            </td>
+                            <td>
+                                <%= pages[index].title %>
+                            </td>
+                            <td>
+                                <%= pages[index].time %>
+                            </td>
+                        </tr>
+                        <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-4">
+            <ul class="list-group" id="my-updates"></ul>
+        </div>
+    </div>
+</div>
+
+<script src="/public/jquery-3.3.1.min.js"></script>
+<script src="/public/bootstrap.js"></script>
+<script src="/public/socket.io.js"></script>
+<script src="/public/jquery.dataTables.min.js"></script>
+
+<script>
+
+    var table = null;
+    var socketIO = io("http://localhost:3000/");
+
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    window.addEventListener("load", function () {
+        table = $('#my-table').DataTable({
+            "order": [[2, "asc"]]
+        });
+    });
+
+    socketIO.on("page_deleted", function (url) {
+        table
+            .rows(function (idx, data, node) {
+                return data[0].includes(url);
+            })
+            .remove()
+            .draw();
+    });
+
+    socketIO.on("crawl_update", function (data) {
+        // console.log(data);
+
+        var html = "";
+        html += `<li class="list-group-item">` + data + `</li>`;
+        document.getElementById("my-updates").innerHTML = html + document.getElementById("my-updates").innerHTML;
+
+        document.getElementById('my-updates').scrollTop = 0;
+    });
+
+    socketIO.on("page_crawled", function (data) {
+        // console.log(data);
+
+        var date = new Date(data.time);
+        var time = date.getDate() + " " + months[date.getMonth() + 1] + ", " + date.getFullYear() + " - " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+
+        table.row.add([
+            "<a href='/page/" + encodeURIComponent(data.url) + "'>" + data.url + "</a>",
+            data.title,
+            time
+        ]).draw(false);
+    });
+
+    function crawlPage(form) {
+        var ajax = new XMLHttpRequest();
+        ajax.open("POST", "/crawl-page", true);
+
+        ajax.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    // console.log(this.responseText);
+                    var data = JSON.parse(this.responseText);
+                    console.log(data);
+                }
+            }
+        };
+
+        var formData = new FormData(form);
+        ajax.send(formData);
+
+        return false;
+    }
+</script>
+
+<style>
+    #my-updates {
+        max-height: 300px;
+        overflow-y: scroll;
+        width: fit-content;
+    }
+
+    .table-bordered th,
+    .table-bordered td,
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid black !important;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid black !important;
+    }
+
+    body {
+        /* background: linear-gradient(0deg, #9abdf5, #2da0ff); */
+        /* Created with https://www.css-gradient.com */
+        background: #C7BD80;
+        background: -webkit-linear-gradient(top right, #C7BD80, #73EBDC);
+        background: -moz-linear-gradient(top right, #C7BD80, #73EBDC);
+        background: linear-gradient(to bottom left, #C7BD80, #73EBDC);
+    }
+</style>
